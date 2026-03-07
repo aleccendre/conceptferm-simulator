@@ -6,9 +6,34 @@
 </head>
 <body>
   <h1>Simulateur Conceptferm</h1>
-  <input type="text" id="adresse" placeholder="Entrez votre adresse...">
-  <button id="boutonSimuler">Simuler</button>
-  <p id="resultat"></p>
+  <p>Estimez le coût de remplacement de vos fenêtres et volets.</p>
+
+  <div id="etape1">
+    <input type="text" id="adresse" placeholder="Entrez votre adresse...">
+    <select id="typeLogement">
+      <option value="">Type de logement</option>
+      <option value="appartement">Appartement</option>
+      <option value="maison">Maison</option>
+      <option value="maison_grande">Grande maison</option>
+    </select>
+    <button id="boutonSimuler">Estimer mes travaux</button>
+  </div>
+
+  <div id="resultat"></div>
+
+  <div id="etape2" style="display:none">
+    <h2>Vos résultats détaillés sont prêts</h2>
+    <p>Laissez vos coordonnées pour recevoir votre estimation complète avec les aides.</p>
+    <input type="text" id="nom" placeholder="Votre nom">
+    <input type="tel" id="telephone" placeholder="Votre téléphone">
+    <input type="email" id="email" placeholder="Votre email">
+    <button id="boutonContact">Recevoir mon estimation</button>
+  </div>
+
+  <div id="confirmation" style="display:none">
+    <h2>Merci !</h2>
+    <p>Nous vous contactons dans les 24h avec votre estimation personnalisée.</p>
+  </div>
 
   <script src="app.js"></script>
 </body>
