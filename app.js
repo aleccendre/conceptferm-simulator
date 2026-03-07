@@ -1,30 +1,16 @@
-function analyserLead(lead) {
-  console.log("--- Analyse du lead ---")
-  console.log(`Nom : ${lead.nom}`)
-  console.log(`Adresse :  ${lead.adresse}`)
+const bouton = document.getElementById("boutonSimuler")
+const champAdresse = document.getElementById("adresse")
+const resultat = document.getElementById("resultat")
 
-  if (!lead.estProprietaire) {
-    console.log("Non éligible aux aides - locataire")
-    return
+function analyserAdresse(adresse) {
+  if (adresse === "") {
+    return "Veuillez entrer une adresse."
   }
-
-  if (lead.revenuFiscal < 15000) {
-    console.log("Taux MPR : 50%")
-  } else if (lead.revenuFiscal < 30000) {
-    console.log("Taux MPR : 40%")
-  } else if (lead.revenuFiscal < 45000) {
-    console.log("Taux MPR : 30%")
-  } else {
-    console.log("Taux MPR : 15%")
-  }
+  return `Analyse en cours pour : ${adresse}`
 }
 
-const leads = [
-  { nom: "Martin Dupont", adresse: "12 rue de la Thur, Thann", estProprietaire: true, revenuFiscal: 25000 },
-  { nom: "Sophie Bernard", adresse: "8 avenue d'Alsace, Mulhouse", estProprietaire: false, revenuFiscal: 18000 },
-  { nom: "Pierre Martin", adresse: "3 rue de Cernay, Mulhouse", estProprietaire: true, revenuFiscal: 12000 }
-]
-
-leads.forEach(function(lead) {
-  analyserLead(lead)
+bouton.addEventListener("click", function() {
+  const adresse = champAdresse.value
+  const message = analyserAdresse(adresse)
+  resultat.textContent = message
 })
