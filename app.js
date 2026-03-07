@@ -94,10 +94,17 @@ boutonContact.addEventListener("click", function() {
   })
   .then(function(response) {
     if (response.ok) {
+      fetch("/api/send-lead", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(lead)
+      });
       etape2.style.display = "none";
       confirmation.style.display = "block";
     } else {
       alert("Une erreur est survenue. Reessayez.");
     }
   });
-});
+  });
