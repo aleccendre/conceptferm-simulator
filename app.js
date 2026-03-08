@@ -1,6 +1,6 @@
 console.log("app.js charge");
 
-document.addEventListener("DOMContentLoaded", function() {
+window.addEventListener("load", function() {
 
 const SUPABASE_URL = "https://yaxghvguiumgyuhwhwpo.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGdodmd1aXVtZ3l1aHdod3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NjUyNzMsImV4cCI6MjA4ODQ0MTI3M30.HYGXMXLjCOTComA3mzQvTisy8bXXhd9k_n75AgkCvPs";
@@ -35,6 +35,43 @@ function estimerFenetres(nbLog) {
   }
 }
 
+function calculerPerteEnergetique(anneeNum, nbFenetres, typeEnergie) {
+  var surfaceVitrage = nbFenetres * 1.5;
+  var degreJours = 2800;
+
+  var U;
+  if (anneeNum < 1975) {
+    U = 5.8;
+  } else if (anneeNum < 1990) {
+    U = 3.0;
+  } else if (anneeNum < 2010) {
+    U = 2.0;
+  } else {
+    U = 1.2;
+  }
+
+  var Unouveau = 1.1;
+  var perteActuelle = U * surfaceVitrage * degreJours * 24 / 1000;
+  var perteNouvelle = Unouveau * surfaceVitrage * degreJours * 24 / 1000;
+  var economieKwh = Math.round(perteActuelle - perteNouvelle);
+
+  var prixEnergie;
+  if (typeEnergie === "gaz") prixEnergie = 0.13;
+  else if (typeEnergie === "electricite") prixEnergie = 0.25;
+  else if (typeEnergie === "fioul") prixEnergie = 0.12;
+  else if (typeEnergie === "granules") prixEnergie = 0.07;
+  else if (typeEnergie === "pac") prixEnergie = 0.08;
+  else prixEnergie = 0.13;
+
+  var economieEuros = Math.round(economieKwh * prixEnergie);
+
+  return {
+    perteActuelle: Math.round(perteActuelle),
+    economieKwh: economieKwh,
+    economieEuros: economieEuros
+  };
+}
+
 bouton.addEventListener("click", function() {
   console.log("bouton clique");
 
@@ -66,25 +103,29 @@ bouton.addEventListener("click", function() {
         .then(function(dataBDNB) {
           console.log("BDNB:", dataBDNB);
 
-          if (!dataBDNB || dataBDNB.length === 0) {
-            resultat.innerHTML = "<p>Donnees du batiment non trouvees pour cette adresse.</p>";
-            return;
+          var nbFenetresEstime = 6;
+          var anneeAffichee = "Inconnue";
+
+          if (dataBDNB && dataBDNB.length > 0) {
+            var batiment = dataBDNB[0];
+            var annee = batiment.annee_construction;
+            var nbLog = batiment.nb_log;
+            var vitrage = deduireVitrage(annee);
+            nbFenetresEstime = estimerFenetres(nbLog);
+            anneeAffichee = annee;
+
+            resultat.innerHTML =
+              "<h2>Analyse pour " + adresse + "</h2>" +
+              "<p>Annee de construction : " + anneeAffichee + "</p>" +
+              "<p>Type de vitrage probable : " + vitrage + "</p>" +
+              "<p>Nombre de fenetres estime : " + nbFenetresEstime + "</p>";
+          } else {
+            resultat.innerHTML =
+              "<h2>Analyse pour " + adresse + "</h2>" +
+              "<p>Annee de construction non trouvee - confirmez ci-dessous.</p>";
           }
 
-          var batiment = dataBDNB[0];
-          var annee = batiment.annee_construction;
-          var nbLog = batiment.nb_log;
-          var vitrage = deduireVitrage(annee);
-          var nbFenetresEstime = estimerFenetres(nbLog);
-
           document.getElementById("nbFenetresObserve").value = nbFenetresEstime;
-
-          resultat.innerHTML =
-            "<h2>Analyse pour " + adresse + "</h2>" +
-            "<p>Annee de construction : " + annee + "</p>" +
-            "<p>Type de vitrage probable : " + vitrage + "</p>" +
-            "<p>Nombre de fenetres estime : " + nbFenetresEstime + "</p>";
-
           document.getElementById("etapeTerrain").style.display = "block";
         });
     });
@@ -95,27 +136,23 @@ document.getElementById("boutonValiderTerrain").addEventListener("click", functi
 
   var nbFenetres = parseInt(document.getElementById("nbFenetresObserve").value);
   var anneeFenetres = document.getElementById("anneeFenetres").value;
+  var typeEnergie = document.getElementById("typeEnergie").value;
 
-  var prixUnitaire;
-  if (anneeFenetres === "avant1975") {
-    prixUnitaire = 1200;
-  } else if (anneeFenetres === "1975-1990") {
-    prixUnitaire = 1000;
-  } else if (anneeFenetres === "1990-2010") {
-    prixUnitaire = 900;
-  } else {
-    prixUnitaire = 800;
-  }
+  var anneeNum;
+  if (anneeFenetres === "avant1975") anneeNum = 1960;
+  else if (anneeFenetres === "1975-1990") anneeNum = 1982;
+  else if (anneeFenetres === "1990-2010") anneeNum = 2000;
+  else anneeNum = 2015;
 
-  var coutMin = Math.round(nbFenetres * prixUnitaire * 0.8);
-  var coutMax = Math.round(nbFenetres * prixUnitaire * 1.2);
+  var perte = calculerPerteEnergetique(anneeNum, nbFenetres, typeEnergie);
 
   resultat.innerHTML = resultat.innerHTML +
     "<hr>" +
-    "<h3>Estimation finale</h3>" +
-    "<p>Fenetres observees : " + nbFenetres + "</p>" +
-    "<p>Vitrage actuel : " + anneeFenetres + "</p>" +
-    "<p><strong>Estimation travaux : entre " + coutMin + "EUR et " + coutMax + "EUR</strong></p>";
+    "<h3>Ce que vos fenetres vous coutent</h3>" +
+    "<p>Perte actuelle : " + perte.perteActuelle + " kWh/an</p>" +
+    "<p>Avec des fenetres neuves vous economiseriez :</p>" +
+    "<p><strong>" + perte.economieKwh + " kWh par an</strong></p>" +
+    "<p><strong>" + perte.economieEuros + " EUR par an sur votre facture</strong></p>";
 
   document.getElementById("etapeTerrain").style.display = "none";
   etape2.style.display = "block";
@@ -165,4 +202,4 @@ boutonContact.addEventListener("click", function() {
   });
 });
 
-}); // fin DOMContentLoaded
+}); // fin window load
