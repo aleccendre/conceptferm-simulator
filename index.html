@@ -20,6 +20,19 @@
   </div>
 
   <div id="resultat"></div>
+  <div id="etapeTerrain" style="display:none">
+  <h3>Confirmez ce que vous observez</h3>
+  <label>Nombre de fenêtres visible :</label>
+  <input type="number" id="nbFenetresObserve" min="1" max="50" value="6">
+  <label>Année estimée des fenêtres actuelles :</label>
+  <select id="anneeFenetres">
+    <option value="avant1975">Avant 1975 - Simple vitrage</option>
+    <option value="1975-1990">1975-1990 - Double vitrage ancien</option>
+    <option value="1990-2010">1990-2010 - Double vitrage standard</option>
+    <option value="apres2010">Après 2010 - Double vitrage récent</option>
+  </select>
+  <button id="boutonValiderTerrain">Calculer l'estimation</button>
+</div>
 
   <div id="etape2" style="display:none">
     <h2>Vos résultats détaillés sont prêts</h2>
